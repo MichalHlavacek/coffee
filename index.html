@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BrewPerfect — Your Morning Coffee</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap');
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0c0a09;
+    --surface: #1c1917;
+    --surface2: #292524;
+    --surface3: #3a3532;
+    --border: #44403c;
+    --text: #fafaf9;
+    --text-muted: #a8a29e;
+    --text-dim: #78716c;
+    --accent: #d97706;
+    --accent-light: #f59e0b;
+    --accent-glow: rgba(217, 119, 6, 0.15);
+    --success: #16a34a;
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Background ambiance ── */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(ellipse at 30% 20%, rgba(217, 119, 6, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, rgba(120, 53, 15, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 24px 20px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Header ── */
+  .header {
+    text-align: center;
+    padding: 48px 0 40px;
+  }
+
+  .header .icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    display: block;
+    filter: drop-shadow(0 0 24px rgba(217, 119, 6, 0.3));
+  }
+
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.4rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, var(--text) 0%, var(--accent-light) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .header p {
+    color: var(--text-muted);
+    margin-top: 8px;
+    font-size: 1rem;
+    font-weight: 300;
+  }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+  }
+
+  .card-title {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+
+  /* ── Method selector ── */
+  .methods {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .method-btn {
+    background: var(--surface2);
+    border: 2px solid transparent;
+    border-radius: var(--radius-sm);
+    padding: 20px 16px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    text-align: center;
+    color: var(--text);
+    font-family: inherit;
+  }
+
+  .method-btn:hover {
+    background: var(--surface3);
+    border-color: var(--border);
+    transform: translateY(-2px);
+  }
+
+  .method-btn.active {
+    border-color: var(--accent);
+    background: var(--accent-glow);
+    box-shadow: 0 0 24px rgba(217, 119, 6, 0.1);
+  }
+
+  .method-btn .emoji {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .method-btn .name {
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+
+  .method-btn .time {
+    color: var(--text-dim);
+    font-size: 0.72rem;
+    margin-top: 4px;
+  }
+
+  /* ── Dose calculator ── */
+  .dose-section { margin-top: 8px; }
+
+  .dose-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .dose-row:last-child { border-bottom: none; }
+
+  .dose-label {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+
+  .dose-control {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .dose-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+
+  .dose-btn:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .dose-value {
+    font-size: 1.2rem;
+    font-weight: 600;
+    min-width: 60px;
+    text-align: center;
+  }
+
+  .dose-value span {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--text-dim);
+    margin-left: 2px;
+  }
+
+  /* ── Specs grid ── */
+  .specs {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-top: 4px;
+  }
+
+  .spec-box {
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    padding: 16px 12px;
+    text-align: center;
+  }
+
+  .spec-box .val {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--accent-light);
+  }
+
+  .spec-box .label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+
+  /* ── Brew button ── */
+  .brew-btn {
+    width: 100%;
+    padding: 18px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: linear-gradient(135deg, var(--accent), #b45309);
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.3s;
+    letter-spacing: 0.02em;
+    margin-top: 8px;
+  }
+
+  .brew-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(217, 119, 6, 0.3);
+  }
+
+  .brew-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* ── Brewing steps ── */
+  #brew-screen { display: none; }
+  #brew-screen.visible { display: block; }
+
+  .step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 16px;
+    opacity: 0.35;
+    transition: all 0.5s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .step.active {
+    opacity: 1;
+    border-color: var(--accent);
+    box-shadow: 0 0 32px rgba(217, 119, 6, 0.08);
+  }
+
+  .step.done {
+    opacity: 0.5;
+    border-color: var(--success);
+  }
+
+  .step.done::after {
+    content: '✓';
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    color: var(--success);
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+
+  .step-number {
+    display: inline-block;
+    background: var(--surface3);
+    color: var(--text-dim);
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+
+  .step.active .step-number {
+    background: var(--accent);
+    color: white;
+  }
+
+  .step h3 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .step p {
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+
+  /* ── Timer ── */
+  .timer-container {
+    text-align: center;
+    padding: 20px 0;
+    margin: 16px 0;
+  }
+
+  .timer-display {
+    font-size: 4.5rem;
+    font-weight: 300;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .timer-label {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 8px;
+  }
+
+  .timer-progress {
+    width: 100%;
+    height: 4px;
+    background: var(--surface3);
+    border-radius: 2px;
+    margin-top: 20px;
+    overflow: hidden;
+  }
+
+  .timer-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-light));
+    border-radius: 2px;
+    transition: width 0.5s linear;
+    width: 0%;
+  }
+
+  .timer-controls {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 16px;
+  }
+
+  .timer-btn {
+    padding: 12px 32px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 0.85rem;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .timer-btn:hover {
+    background: var(--surface3);
+  }
+
+  .timer-btn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+
+  .timer-btn.primary:hover {
+    background: var(--accent-light);
+  }
+
+  /* ── Complete screen ── */
+  .complete-screen {
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  .complete-screen .emoji {
+    font-size: 64px;
+    display: block;
+    margin-bottom: 20px;
+  }
+
+  .complete-screen h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    margin-bottom: 8px;
+  }
+
+  .complete-screen p {
+    color: var(--text-muted);
+    font-size: 1rem;
+  }
+
+  .restart-btn {
+    margin-top: 32px;
+    padding: 14px 40px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 0.9rem;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .restart-btn:hover {
+    background: var(--surface2);
+  }
+
+  /* ── Alarm section ── */
+  .alarm-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .alarm-time-input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 16px;
+    color: var(--text);
+    font-size: 1.1rem;
+    font-family: inherit;
+    font-weight: 500;
+    width: 140px;
+    text-align: center;
+  }
+
+  .alarm-time-input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .alarm-set-btn {
+    padding: 10px 20px;
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--accent);
+    font-size: 0.85rem;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .alarm-set-btn:hover {
+    background: var(--accent);
+    color: white;
+  }
+
+  .alarm-set-btn.set {
+    background: var(--accent);
+    color: white;
+  }
+
+  .alarm-status {
+    text-align: center;
+    margin-top: 14px;
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    min-height: 20px;
+  }
+
+  /* ── Notification banner ── */
+  .notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100px);
+    background: var(--surface);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-sm);
+    padding: 16px 28px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    z-index: 100;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  }
+
+  .notification.show {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ── Animations ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card { animation: fadeUp 0.5s ease backwards; }
+  .card:nth-child(2) { animation-delay: 0.1s; }
+  .card:nth-child(3) { animation-delay: 0.2s; }
+  .card:nth-child(4) { animation-delay: 0.3s; }
+
+  /* ── Responsive ── */
+  @media (max-width: 400px) {
+    .header h1 { font-size: 1.9rem; }
+    .timer-display { font-size: 3.5rem; }
+    .specs { grid-template-columns: 1fr; }
+  }
+
+  /* ── Steam animation on complete ── */
+  .steam-container {
+    position: relative;
+    display: inline-block;
+  }
+
+  @keyframes steam {
+    0% { opacity: 0; transform: translateY(0) scaleX(1); }
+    15% { opacity: 1; }
+    50% { opacity: 0.6; transform: translateY(-20px) scaleX(1.3); }
+    100% { opacity: 0; transform: translateY(-50px) scaleX(1.5); }
+  }
+
+  .steam {
+    position: absolute;
+    width: 8px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    filter: blur(6px);
+    animation: steam 2s ease-out infinite;
+  }
+
+  .steam:nth-child(1) { left: 30%; animation-delay: 0s; }
+  .steam:nth-child(2) { left: 50%; animation-delay: 0.5s; }
+  .steam:nth-child(3) { left: 70%; animation-delay: 1s; }
+
+  /* hide scrollbar but keep scrollable */
+  ::-webkit-scrollbar { width: 0; }
+</style>
+</head>
+<body>
+
+<div class="notification" id="notification"></div>
+
+<div class="container">
+  <!-- ── Setup Screen ── -->
+  <div id="setup-screen">
+    <div class="header">
+      <span class="icon">☕</span>
+      <h1>BrewPerfect</h1>
+      <p>Exceptional coffee. No sugar. Ever.</p>
+    </div>
+
+    <!-- Method -->
+    <div class="card">
+      <div class="card-title">Brewing Method</div>
+      <div class="methods">
+        <button class="method-btn active" data-method="pourover" onclick="selectMethod('pourover')">
+          <span class="emoji">🫗</span>
+          <div class="name">Pour Over</div>
+          <div class="time">3–4 min</div>
+        </button>
+        <button class="method-btn" data-method="frenchpress" onclick="selectMethod('frenchpress')">
+          <span class="emoji">🍵</span>
+          <div class="name">French Press</div>
+          <div class="time">4–5 min</div>
+        </button>
+        <button class="method-btn" data-method="aeropress" onclick="selectMethod('aeropress')">
+          <span class="emoji">💨</span>
+          <div class="name">AeroPress</div>
+          <div class="time">1–2 min</div>
+        </button>
+        <button class="method-btn" data-method="espresso" onclick="selectMethod('espresso')">
+          <span class="emoji">⚡</span>
+          <div class="name">Espresso</div>
+          <div class="time">25–30 sec</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Dose -->
+    <div class="card">
+      <div class="card-title">Your Dose</div>
+      <div class="dose-section">
+        <div class="dose-row">
+          <div class="dose-label">Cups</div>
+          <div class="dose-control">
+            <button class="dose-btn" onclick="adjustCups(-1)">−</button>
+            <div class="dose-value" id="cups-display">1</div>
+            <button class="dose-btn" onclick="adjustCups(1)">+</button>
+          </div>
+        </div>
+        <div class="dose-row">
+          <div class="dose-label">Coffee</div>
+          <div class="dose-value" id="coffee-display">15<span>g</span></div>
+        </div>
+        <div class="dose-row">
+          <div class="dose-label">Water</div>
+          <div class="dose-value" id="water-display">250<span>ml</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Specs -->
+    <div class="card">
+      <div class="card-title">Dial In</div>
+      <div class="specs">
+        <div class="spec-box">
+          <div class="val" id="spec-grind">Medium</div>
+          <div class="label">Grind</div>
+        </div>
+        <div class="spec-box">
+          <div class="val" id="spec-temp">96°C</div>
+          <div class="label">Water Temp</div>
+        </div>
+        <div class="spec-box">
+          <div class="val" id="spec-ratio">1:16.7</div>
+          <div class="label">Ratio</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Morning Alarm -->
+    <div class="card">
+      <div class="card-title">Morning Alarm</div>
+      <div class="alarm-row">
+        <input type="time" class="alarm-time-input" id="alarm-time" value="07:00">
+        <button class="alarm-set-btn" id="alarm-btn" onclick="toggleAlarm()">Set Alarm</button>
+      </div>
+      <div class="alarm-status" id="alarm-status"></div>
+    </div>
+
+    <!-- Start -->
+    <button class="brew-btn" onclick="startBrew()">Start Brewing →</button>
+  </div>
+
+  <!-- ── Brew Screen ── -->
+  <div id="brew-screen">
+    <div class="header" style="padding-bottom: 20px;">
+      <span class="icon">☕</span>
+      <h1 id="brew-method-title">Pour Over</h1>
+      <p id="brew-dose-info">15g coffee · 250ml water</p>
+    </div>
+
+    <div id="steps-container"></div>
+
+    <!-- Timer -->
+    <div class="card" id="timer-card">
+      <div class="timer-container">
+        <div class="timer-display" id="timer-display">0:00</div>
+        <div class="timer-label" id="timer-label">Ready</div>
+        <div class="timer-progress">
+          <div class="timer-progress-bar" id="timer-bar"></div>
+        </div>
+      </div>
+      <div class="timer-controls">
+        <button class="timer-btn" onclick="skipStep()">Skip</button>
+        <button class="timer-btn primary" id="timer-action-btn" onclick="timerAction()">Start</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Complete Screen ── -->
+  <div id="complete-screen" style="display: none;">
+    <div class="complete-screen">
+      <div class="steam-container">
+        <div class="steam"></div>
+        <div class="steam"></div>
+        <div class="steam"></div>
+        <span class="emoji">☕</span>
+      </div>
+      <h2>Perfection.</h2>
+      <p>Your coffee is ready. No sugar needed.</p>
+      <button class="restart-btn" onclick="restart()">Brew Another</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Brewing Data ──
+const methods = {
+  pourover: {
+    name: 'Pour Over',
+    coffeePerCup: 15,
+    waterPerCup: 250,
+    grind: 'Medium',
+    temp: '96°C',
+    ratio: '1:16.7',
+    steps: [
+      { title: 'Boil Water', desc: 'Heat water to 96°C (205°F). If no thermometer, boil and wait 30 seconds off heat.', time: 0 },
+      { title: 'Rinse Filter', desc: 'Place paper filter in dripper and rinse with hot water. Discard rinse water.', time: 0 },
+      { title: 'Add Coffee', desc: 'Add {coffee}g of medium-ground coffee to the filter. Level the bed.', time: 0 },
+      { title: 'Bloom', desc: 'Pour {bloom}ml of water (2× coffee weight) in a slow spiral. Let CO₂ escape.', time: 30 },
+      { title: 'First Pour', desc: 'Slowly pour to {pour1}ml total in a steady spiral from center outward.', time: 30 },
+      { title: 'Second Pour', desc: 'Continue pouring to {water}ml total. Maintain a steady, slow spiral.', time: 30 },
+      { title: 'Drawdown', desc: 'Let all water drain through the coffee bed. Total brew should be ~3:30.', time: 90 },
+      { title: 'Serve', desc: 'Remove dripper, swirl the coffee, and enjoy. No sugar.', time: 0 }
+    ]
+  },
+  frenchpress: {
+    name: 'French Press',
+    coffeePerCup: 17,
+    waterPerCup: 250,
+    grind: 'Coarse',
+    temp: '95°C',
+    ratio: '1:14.7',
+    steps: [
+      { title: 'Boil Water', desc: 'Heat water to 95°C (203°F). Boil, then wait 45 seconds.', time: 0 },
+      { title: 'Preheat Press', desc: 'Pour some hot water into the French press to warm it. Discard.', time: 0 },
+      { title: 'Add Coffee', desc: 'Add {coffee}g of coarse-ground coffee to the press.', time: 0 },
+      { title: 'Pour & Stir', desc: 'Pour all {water}ml of water over the grounds. Give it one gentle stir.', time: 10 },
+      { title: 'Steep', desc: 'Place the lid on (plunger up) and let it steep. Do not touch it.', time: 240 },
+      { title: 'Press', desc: 'Slowly and steadily press the plunger down. Even pressure, no forcing.', time: 15 },
+      { title: 'Serve Immediately', desc: 'Pour all coffee out right away — leaving it in the press overextracts. No sugar.', time: 0 }
+    ]
+  },
+  aeropress: {
+    name: 'AeroPress',
+    coffeePerCup: 15,
+    waterPerCup: 200,
+    grind: 'Med-Fine',
+    temp: '92°C',
+    ratio: '1:13.3',
+    steps: [
+      { title: 'Boil Water', desc: 'Heat water to 92°C (198°F). Boil and wait ~1 minute off heat.', time: 0 },
+      { title: 'Setup (Inverted)', desc: 'Insert plunger slightly into the chamber. Flip upside down (inverted method).', time: 0 },
+      { title: 'Add Coffee', desc: 'Add {coffee}g of medium-fine ground coffee into the inverted chamber.', time: 0 },
+      { title: 'Pour & Stir', desc: 'Pour {water}ml of water. Stir vigorously for 10 seconds.', time: 10 },
+      { title: 'Steep', desc: 'Let it steep with the cap off.', time: 60 },
+      { title: 'Flip & Press', desc: 'Attach the rinsed filter cap, flip onto your mug, and press slowly for 20–30 seconds.', time: 30 },
+      { title: 'Enjoy', desc: 'Smooth, clean, exceptional. No sugar.', time: 0 }
+    ]
+  },
+  espresso: {
+    name: 'Espresso',
+    coffeePerCup: 18,
+    waterPerCup: 36,
+    grind: 'Fine',
+    temp: '93°C',
+    ratio: '1:2',
+    steps: [
+      { title: 'Warm Up Machine', desc: 'Ensure your espresso machine is fully heated. Run a blank shot to warm the group head.', time: 0 },
+      { title: 'Dose & Distribute', desc: 'Dose {coffee}g into the portafilter. Distribute evenly using WDT or tapping.', time: 0 },
+      { title: 'Tamp', desc: 'Tamp level and firm — about 15kg of pressure. Consistent and flat.', time: 0 },
+      { title: 'Pull Shot', desc: 'Lock in portafilter and start extraction. Target {water}ml out in 25-30 seconds.', time: 28 },
+      { title: 'Assess', desc: 'Look for a steady honey-like stream. Should start dark, blend to golden tiger striping.', time: 0 },
+      { title: 'Serve', desc: 'Stir the crema in. Sip. Perfection. No sugar.', time: 0 }
+    ]
+  }
+};
+
+// ── State ──
+let currentMethod = 'pourover';
+let cups = 1;
+let currentStep = 0;
+let timerInterval = null;
+let timerRemaining = 0;
+let timerTotal = 0;
+let timerRunning = false;
+let alarmTimeout = null;
+let alarmSet = false;
+
+// ── Method Selection ──
+function selectMethod(method) {
+  currentMethod = method;
+  document.querySelectorAll('.method-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`[data-method="${method}"]`).classList.add('active');
+  updateDose();
+}
+
+// ── Dose Control ──
+function adjustCups(delta) {
+  cups = Math.max(1, Math.min(6, cups + delta));
+  document.getElementById('cups-display').textContent = cups;
+  updateDose();
+}
+
+function updateDose() {
+  const m = methods[currentMethod];
+  const coffee = m.coffeePerCup * cups;
+  const water = m.waterPerCup * cups;
+  document.getElementById('coffee-display').innerHTML = `${coffee}<span>g</span>`;
+  document.getElementById('water-display').innerHTML = `${water}<span>ml</span>`;
+  document.getElementById('spec-grind').textContent = m.grind;
+  document.getElementById('spec-temp').textContent = m.temp;
+  document.getElementById('spec-ratio').textContent = m.ratio;
+}
+
+// ── Alarm ──
+function toggleAlarm() {
+  if (alarmSet) {
+    clearTimeout(alarmTimeout);
+    alarmSet = false;
+    document.getElementById('alarm-btn').textContent = 'Set Alarm';
+    document.getElementById('alarm-btn').classList.remove('set');
+    document.getElementById('alarm-status').textContent = '';
+    return;
+  }
+
+  const timeVal = document.getElementById('alarm-time').value;
+  if (!timeVal) return;
+
+  const [h, min] = timeVal.split(':').map(Number);
+  const now = new Date();
+  const alarm = new Date();
+  alarm.setHours(h, min, 0, 0);
+  if (alarm <= now) alarm.setDate(alarm.getDate() + 1);
+
+  const ms = alarm - now;
+  const hoursUntil = Math.floor(ms / 3600000);
+  const minsUntil = Math.floor((ms % 3600000) / 60000);
+
+  // Request notification permission
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+
+  alarmTimeout = setTimeout(() => {
+    notify('☕ Time to brew! Your perfect coffee awaits.');
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification('BrewPerfect ☕', { body: 'Time to brew your morning coffee!' });
+    }
+    // Play a sound
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      [0, 0.2, 0.4].forEach(delay => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = 880;
+        osc.type = 'sine';
+        gain.gain.value = 0.15;
+        osc.start(ctx.currentTime + delay);
+        osc.stop(ctx.currentTime + delay + 0.15);
+      });
+    } catch(e) {}
+    alarmSet = false;
+    document.getElementById('alarm-btn').textContent = 'Set Alarm';
+    document.getElementById('alarm-btn').classList.remove('set');
+    document.getElementById('alarm-status').textContent = '⏰ Alarm triggered!';
+  }, ms);
+
+  alarmSet = true;
+  document.getElementById('alarm-btn').textContent = 'Cancel';
+  document.getElementById('alarm-btn').classList.add('set');
+  document.getElementById('alarm-status').textContent = `Alarm set — ${hoursUntil}h ${minsUntil}m from now. Keep this tab open.`;
+  notify(`Alarm set for ${timeVal}`);
+}
+
+// ── Notification ──
+function notify(msg) {
+  const el = document.getElementById('notification');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ── Start Brew ──
+function startBrew() {
+  const m = methods[currentMethod];
+  const coffee = m.coffeePerCup * cups;
+  const water = m.waterPerCup * cups;
+
+  document.getElementById('brew-method-title').textContent = m.name;
+  document.getElementById('brew-dose-info').textContent = `${coffee}g coffee · ${water}ml water`;
+
+  // Build steps
+  const container = document.getElementById('steps-container');
+  container.innerHTML = '';
+
+  m.steps.forEach((step, i) => {
+    const div = document.createElement('div');
+    div.className = 'step' + (i === 0 ? ' active' : '');
+    div.id = `step-${i}`;
+
+    let desc = step.desc
+      .replace('{coffee}', coffee)
+      .replace('{water}', water)
+      .replace('{bloom}', coffee * 2)
+      .replace('{pour1}', Math.round(water * 0.6));
+
+    div.innerHTML = `
+      <div class="step-number">Step ${i + 1}</div>
+      <h3>${step.title}</h3>
+      <p>${desc}</p>
+    `;
+    container.appendChild(div);
+  });
+
+  currentStep = 0;
+  document.getElementById('setup-screen').style.display = 'none';
+  document.getElementById('brew-screen').classList.add('visible');
+
+  updateTimerForStep();
+  window.scrollTo({ top: 0 });
+}
+
+// ── Timer Logic ──
+function updateTimerForStep() {
+  const m = methods[currentMethod];
+  const step = m.steps[currentStep];
+
+  if (step.time === 0) {
+    document.getElementById('timer-display').textContent = '—';
+    document.getElementById('timer-label').textContent = 'No timer needed';
+    document.getElementById('timer-action-btn').textContent = 'Next Step';
+    document.getElementById('timer-bar').style.width = '0%';
+    timerTotal = 0;
+  } else {
+    timerRemaining = step.time;
+    timerTotal = step.time;
+    timerRunning = false;
+    formatTimer();
+    document.getElementById('timer-label').textContent = step.title;
+    document.getElementById('timer-action-btn').textContent = 'Start';
+    document.getElementById('timer-bar').style.width = '0%';
+  }
+
+  // Scroll active step into view
+  const activeEl = document.getElementById(`step-${currentStep}`);
+  if (activeEl) activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function formatTimer() {
+  const mins = Math.floor(timerRemaining / 60);
+  const secs = timerRemaining % 60;
+  document.getElementById('timer-display').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+function timerAction() {
+  const m = methods[currentMethod];
+  const step = m.steps[currentStep];
+
+  if (step.time === 0 || (timerTotal > 0 && timerRemaining <= 0)) {
+    advanceStep();
+    return;
+  }
+
+  if (timerRunning) {
+    // Pause
+    clearInterval(timerInterval);
+    timerRunning = false;
+    document.getElementById('timer-action-btn').textContent = 'Resume';
+  } else {
+    // Start / Resume
+    timerRunning = true;
+    document.getElementById('timer-action-btn').textContent = 'Pause';
+    timerInterval = setInterval(() => {
+      timerRemaining--;
+      formatTimer();
+      const pct = ((timerTotal - timerRemaining) / timerTotal) * 100;
+      document.getElementById('timer-bar').style.width = `${pct}%`;
+
+      if (timerRemaining <= 0) {
+        clearInterval(timerInterval);
+        timerRunning = false;
+        document.getElementById('timer-action-btn').textContent = 'Next Step';
+        document.getElementById('timer-display').textContent = '0:00';
+        document.getElementById('timer-bar').style.width = '100%';
+        notify(`✓ ${step.title} — Done!`);
+        // beep
+        try {
+          const ctx = new (window.AudioContext || window.webkitAudioContext)();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.frequency.value = 660;
+          osc.type = 'sine';
+          gain.gain.value = 0.12;
+          osc.start();
+          osc.stop(ctx.currentTime + 0.2);
+        } catch(e) {}
+      }
+    }, 1000);
+  }
+}
+
+function skipStep() {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  advanceStep();
+}
+
+function advanceStep() {
+  const m = methods[currentMethod];
+  document.getElementById(`step-${currentStep}`).classList.remove('active');
+  document.getElementById(`step-${currentStep}`).classList.add('done');
+
+  currentStep++;
+
+  if (currentStep >= m.steps.length) {
+    // Done!
+    document.getElementById('brew-screen').classList.remove('visible');
+    document.getElementById('complete-screen').style.display = 'block';
+    window.scrollTo({ top: 0 });
+    return;
+  }
+
+  document.getElementById(`step-${currentStep}`).classList.add('active');
+  updateTimerForStep();
+}
+
+// ── Restart ──
+function restart() {
+  document.getElementById('complete-screen').style.display = 'none';
+  document.getElementById('brew-screen').classList.remove('visible');
+  document.getElementById('setup-screen').style.display = 'block';
+  currentStep = 0;
+  clearInterval(timerInterval);
+  timerRunning = false;
+  window.scrollTo({ top: 0 });
+}
+
+// ── Init ──
+updateDose();
+</script>
+</body>
+</html>
